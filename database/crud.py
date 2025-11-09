@@ -12,6 +12,9 @@ from config.settings import settings
 if settings.database_url.startswith("sqlite"):
     # Для SQLite используем aiosqlite
     DATABASE_URL = settings.database_url.replace("sqlite://", "sqlite+aiosqlite://")
+elif settings.database_url.startswith("postgresql://"):
+    # Для PostgreSQL используем asyncpg (Render предоставляет postgresql://)
+    DATABASE_URL = settings.database_url.replace("postgresql://", "postgresql+asyncpg://")
 else:
     DATABASE_URL = settings.database_url
 
