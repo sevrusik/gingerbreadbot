@@ -1,0 +1,61 @@
+services:
+  # Web service для бота
+  - type: web
+    name: gingerbread-bot
+    env: python
+    region: frankfurt
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python run.py
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: ADMIN_USER_IDS
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: gingerbread-db
+          property: connectionString
+      - key: DEBUG
+        value: False
+      - key: LOG_LEVEL
+        value: INFO
+      - key: MASTER_NAME
+        value: Liubov
+      - key: BUSINESS_PHONE
+        value: +357-95-161-375
+      - key: PICKUP_ADDRESS
+        value: Larnaka,Thessalonikiss 13
+      - key: PICKUP_COORDINATES
+        value: 34.9161781,33.6202820
+      - key: WORKING_HOURS
+        value: 09:00-18:00
+      - key: BASE_PRICE_EUR
+        value: 2.0
+      - key: COLORING_PRICE_EUR
+        value: 12.0
+      - key: TOPPER_PRICE_EUR
+        value: 5.0
+      - key: RUSH_ORDER_MULTIPLIER
+        value: 2
+      - key: MIN_PREPARATION_DAYS
+        value: 10
+      - key: MIN_PREPARATION_DAYS_URGENT
+        value: 3
+      - key: MIN_QUANTITY
+        value: 10
+      - key: MIN_QUANTITY_TOPPER
+        value: 1
+      - key: COLORING_SET_SIZE
+        value: 3
+      - key: GOOGLE_CALENDAR_ENABLED
+        value: False
+      - key: GOOGLE_CALENDAR_ID
+        value: primary
+
+databases:
+  # PostgreSQL база данных
+  - name: gingerbread-db
+    databaseName: gingerbread_bot
+    user: gingerbread_user
+    plan: free
