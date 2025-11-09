@@ -91,5 +91,5 @@ htmlcov/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# pyenv
-.python-version
+# pyenv (но не для deployment)
+# .python-version - закомментировано для Render
