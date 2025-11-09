@@ -15,8 +15,16 @@ if settings.database_url.startswith("sqlite"):
 elif settings.database_url.startswith("postgresql://"):
     # Для PostgreSQL используем asyncpg (Render предоставляет postgresql://)
     DATABASE_URL = settings.database_url.replace("postgresql://", "postgresql+asyncpg://")
+elif settings.database_url.startswith("postgres://"):
+    # Некоторые провайдеры используют postgres:// вместо postgresql://
+    DATABASE_URL = settings.database_url.replace("postgres://", "postgresql+asyncpg://")
 else:
     DATABASE_URL = settings.database_url
+
+# Логируем DATABASE_URL (без пароля для безопасности)
+import re
+masked_url = re.sub(r'://([^:]+):([^@]+)@', r'://\1:***@', DATABASE_URL)
+print(f"📊 Database URL: {masked_url}")
 
 engine = create_async_engine(
     DATABASE_URL,
