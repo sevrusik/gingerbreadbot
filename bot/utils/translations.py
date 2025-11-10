@@ -48,9 +48,9 @@ TRANSLATIONS = {
         "uk": "📦 Мої замовлення"
     },
     "btn_change_language": {
-        "ru": "🌍 Сменить язык",
-        "en": "🌍 Change language",
-        "uk": "🌍 Змінити мову"
+        "ru": "🌍 Язык | Language | Мова",
+        "en": "🌍 Язык | Language | Мова",
+        "uk": "🌍 Язык | Language | Мова"
     },
 
     # Выбор типа пряников
