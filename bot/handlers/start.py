@@ -222,20 +222,18 @@ async def set_language(callback: CallbackQuery):
         get_text("language_selected", lang)
     )
 
-    # Получаем клиента и проверяем активные заказы
+    # ВАЖНО: Получаем клиента ПОСЛЕ обновления языка, чтобы получить актуальные данные
     customer = await get_or_create_customer(
         telegram_user_id=callback.from_user.id,
         name=callback.from_user.full_name
     )
 
-    # Проверяем кэш активных заказов
-    active_orders = order_cache.get(customer.id)
-    if active_orders is None:
-        # Кэш пуст или устарел - загружаем из БД
-        active_orders = await get_active_orders_by_customer(customer.id)
-        order_cache.set(customer.id, active_orders)
+    # Загружаем активные заказы из БД (не из кэша, так как язык изменился)
+    active_orders = await get_active_orders_by_customer(customer.id)
+    # Обновляем кэш
+    order_cache.set(customer.id, active_orders)
 
-    # Строим приветственное сообщение
+    # Строим приветственное сообщение с новым языком
     welcome_text, keyboard = build_welcome_message(
         customer, active_orders, lang, callback.from_user.id
     )
