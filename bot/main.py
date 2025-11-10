@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from aiohttp import web
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.client.default import DefaultBotProperties
@@ -124,18 +125,42 @@ def register_handlers():
     logger.info("Обработчики зарегистрированы")
 
 
+async def health_check(request):
+    """Health check endpoint для Render"""
+    return web.Response(text="OK")
+
+
+async def start_web_server():
+    """Запуск простого веб-сервера для health checks"""
+    app = web.Application()
+    app.router.add_get('/', health_check)
+    app.router.add_get('/health', health_check)
+
+    runner = web.AppRunner(app)
+    await runner.setup()
+
+    port = settings.webapp_port
+    site = web.TCPSite(runner, host='0.0.0.0', port=port)
+    await site.start()
+
+    logger.info(f"Health check сервер запущен на порту {port}")
+
+
 async def main():
     """Основная функция запуска бота"""
     # Регистрируем обработчики
     register_handlers()
-    
+
     # Регистрируем события
     dp.startup.register(on_startup)
     dp.shutdown.register(on_shutdown)
-    
-    # Пропускаем накопившиеся апдейты и запускаем polling
+
+    # Пропускаем накопившиеся апдейты
     await bot.delete_webhook(drop_pending_updates=True)
-    
+
+    # Запускаем health check сервер
+    await start_web_server()
+
     logger.info("Начинаем polling...")
     await dp.start_polling(bot)
 

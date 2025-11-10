@@ -1,6 +1,6 @@
 services:
-  # Background worker для бота (polling mode)
-  - type: worker
+  # Web service для бота (с health check портом)
+  - type: web
     name: gingerbread-bot
     env: python
     region: frankfurt
