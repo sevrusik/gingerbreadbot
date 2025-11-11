@@ -1,0 +1,91 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Logs
+logs/
+*.log
+
+# Database
+database/*.db
+database/*.sqlite
+database/*.sqlite3
+*.db
+*.sqlite
+*.sqlite3
+
+# Backups
+backups/
+*.backup
+*.bak
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.production
+.env copy
+
+# Docker
+data/
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Temporary
+temp/
+tmp/
+*.tmp
+
+# SSL
+*.pem
+*.key
+*.crt
+
+# Google Calendar credentials
+config/credentials.json
+config/token.json
+
+# Test coverage
+htmlcov/
+.coverage
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints
+
+# Render
+render.yaml
+runtime.txt
+.python-version
+
+# Documentation
+README.md
+DEPLOYMENT.md
+GOOGLE_CALENDAR_SETUP.md
+CLAUDE.md

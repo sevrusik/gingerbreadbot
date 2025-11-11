@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # PostgreSQL база данных
+  postgres:
+    image: postgres:15-alpine
+    container_name: gingerbread-db
+    restart: always
+    environment:
+      POSTGRES_USER: gingerbread_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme123}
+      POSTGRES_DB: gingerbread_bot
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gingerbread_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gingerbread-network
+
+  # Telegram бот
+  bot:
+    build: .
+    container_name: gingerbread-bot
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./media:/app/media
+    networks:
+      - gingerbread-network
+
+networks:
+  gingerbread-network:
+    driver: bridge
