@@ -27,15 +27,10 @@ TRANSLATIONS = {
         "en": "🍪 Welcome back!\n\nWe've warmed up the oven and continue crafting your sweet order 🍪\nThe scent of ginger is already in the air — everything's going according to plan!\n\n👇 Tap the order number to see details",
         "uk": "🍪 З поверненням!\n\nМи тут розігріли пічку й продовжуємо творити твоє солодке замовлення 🍪\nАромат імбиру вже витає в повітрі — все йде за планом!\n\n👇 Натисни на номер замовлення, щоб переглянути деталі"
     },
-    "btn_make_order": {
-        "ru": "👩‍🍳 Сделать заказ",
-        "en": "👩‍🍳 Make an order",
-        "uk": "👩‍🍳 Зробити замовлення"
-    },
-    "btn_catalog": {
-        "ru": "📖 Каталог",
-        "en": "📖 Catalog",
-        "uk": "📖 Каталог"
+    "btn_view_and_order": {
+        "ru": "🍪 Посмотреть и заказать",
+        "en": "🍪 View and order",
+        "uk": "🍪 Переглянути і замовити"
     },
     "btn_contacts": {
         "ru": "💌 Контакты",
@@ -376,6 +371,16 @@ TRANSLATIONS = {
         "ru": "⬅️ Назад",
         "en": "⬅️ Back",
         "uk": "⬅️ Назад"
+    },
+    "btn_back_to_selection": {
+        "ru": "◀️ Назад к выбору",
+        "en": "◀️ Back to selection",
+        "uk": "◀️ Назад до вибору"
+    },
+    "btn_order_this": {
+        "ru": "✅ Заказать",
+        "en": "✅ Order",
+        "uk": "✅ Замовити"
     },
     "btn_main_menu": {
         "ru": "🏠 Главное меню",

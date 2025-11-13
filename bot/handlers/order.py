@@ -20,42 +20,6 @@ from database.crud import create_order, get_customer_by_telegram_id, check_date_
 router = Router()
 
 
-@router.callback_query(F.data == "start_order")
-async def start_order(callback: CallbackQuery, state: FSMContext, **kwargs):
-    """Начало оформления заказа"""
-    await state.set_state(OrderStates.choosing_type)
-
-    lang = get_user_lang(kwargs)
-
-    # Удаляем предыдущее сообщение
-    try:
-        await callback.message.delete()
-    except:
-        pass
-
-    # Проверяем наличие изображений-примеров
-    available_images = get_all_example_images()
-
-    if available_images and len(available_images) > 0:
-        # Если есть изображения - отправляем медиа-группу
-        from bot.main import bot
-        types_order = ['classic', 'coloring', 'numbers', 'themed', 'urgent']
-        media_group = create_media_group_from_types(types_order, get_text("choose_type", lang))
-
-        if media_group:
-            # Отправляем медиа-группу с примерами
-            await bot.send_media_group(
-                chat_id=callback.message.chat.id,
-                media=media_group
-            )
-
-    # Отправляем клавиатуру с выбором типа
-    await callback.message.answer(
-        get_text("choose_type", lang),
-        reply_markup=gingerbread_types(lang),
-        parse_mode="Markdown"
-    )
-    await callback.answer()
 
 
 @router.callback_query(F.data.startswith("type_"))
@@ -91,13 +55,13 @@ async def choose_type(callback: CallbackQuery, state: FSMContext, **kwargs):
     # Текст для карточки
     card_text = f"🍪 **{type_name}**\n\n{description}\n\n💰 {price_label.get(lang, 'Цена')}: {price_from} {price}€/шт"
 
-    # Кнопка продолжить заказ
-    continue_btn_text = {"ru": "✅ Продолжить заказ", "en": "✅ Continue order", "uk": "✅ Продовжити замовлення"}
-    back_btn_text = get_text("btn_back", lang)
+    # Кнопки для карточки товара
+    order_btn_text = get_text("btn_order_this", lang)
+    back_btn_text = get_text("btn_back_to_selection", lang)
 
     continue_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text=continue_btn_text.get(lang, continue_btn_text["ru"]), callback_data=f"continue_{type_key}")],
-        [InlineKeyboardButton(text=back_btn_text, callback_data="catalog")]
+        [InlineKeyboardButton(text=order_btn_text, callback_data=f"continue_{type_key}")],
+        [InlineKeyboardButton(text=back_btn_text, callback_data="view_and_order")]
     ])
 
     # Удаляем предыдущее сообщение и отправляем фото с описанием

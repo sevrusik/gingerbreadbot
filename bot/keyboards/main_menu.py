@@ -6,8 +6,7 @@ from bot.utils.translations import get_text
 def main_menu(lang: str = "ru", user_id: int = None) -> InlineKeyboardMarkup:
     """Главное меню"""
     buttons = [
-        [InlineKeyboardButton(text=get_text("btn_make_order", lang), callback_data="start_order")],
-        [InlineKeyboardButton(text=get_text("btn_catalog", lang), callback_data="catalog")],
+        [InlineKeyboardButton(text=get_text("btn_view_and_order", lang), callback_data="view_and_order")],
         [InlineKeyboardButton(text=get_text("btn_contacts", lang), callback_data="contacts")],
     ]
 

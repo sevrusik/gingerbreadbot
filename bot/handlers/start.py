@@ -120,9 +120,9 @@ async def back_to_menu(callback: CallbackQuery, state: FSMContext, **kwargs):
     await callback.answer()
 
 
-@router.callback_query(F.data == "catalog")
+@router.callback_query(F.data == "view_and_order")
 async def show_catalog(callback: CallbackQuery, **kwargs):
-    """Показать каталог пряников"""
+    """Показать каталог с возможностью заказа"""
     lang = get_user_lang(kwargs)
 
     # Проверяем, есть ли у сообщения фото (возврат из карточки товара)
@@ -165,13 +165,10 @@ async def show_contacts(callback: CallbackQuery, **kwargs):
 
 
 @router.message(Command("order"))
-async def cmd_order(message: Message, state: FSMContext, **kwargs):
-    """Команда для быстрого начала заказа"""
-    from bot.states.order_states import OrderStates
-
+async def cmd_order(message: Message, **kwargs):
+    """Команда для быстрого просмотра каталога и заказа"""
     lang = get_user_lang(kwargs)
 
-    await state.set_state(OrderStates.choosing_type)
     await message.answer(
         get_text("choose_type", lang),
         reply_markup=gingerbread_types(lang),
@@ -181,7 +178,7 @@ async def cmd_order(message: Message, state: FSMContext, **kwargs):
 
 @router.message(Command("catalog"))
 async def cmd_catalog(message: Message, **kwargs):
-    """Команда для просмотра каталога"""
+    """Команда для просмотра каталога (алиас для /order)"""
     lang = get_user_lang(kwargs)
 
     await message.answer(
