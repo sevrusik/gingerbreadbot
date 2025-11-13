@@ -12,8 +12,6 @@ services:
       POSTGRES_DB: gingerbread_bot
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U gingerbread_user"]
       interval: 10s
