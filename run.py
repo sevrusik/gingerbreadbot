@@ -11,21 +11,22 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).parent
 sys.path.insert(0, str(ROOT_DIR))
 
-# Проверяем наличие .env файла (опционально для локальной разработки)
+# Проверяем обязательные переменные окружения
+# Файл .env используется локально и Docker Compose, но не копируется в образ
+if not os.getenv("TELEGRAM_BOT_TOKEN"):
+    print("❌ Переменная окружения TELEGRAM_BOT_TOKEN не установлена!")
+    print("Для локальной разработки создайте файл .env с настройками:")
+    print("TELEGRAM_BOT_TOKEN=your_bot_token_here")
+    print("ADMIN_USER_IDS=your_telegram_user_id")
+    print("\nДля Docker/Render переменные передаются через env_file или Dashboard")
+    sys.exit(1)
+
+# Определяем режим работы
 env_file = ROOT_DIR / ".env"
-if not env_file.exists():
-    # В продакшене (Render) переменные окружения устанавливаются через веб-интерфейс
-    # Проверяем, что есть хотя бы обязательные переменные
-    if not os.getenv("TELEGRAM_BOT_TOKEN"):
-        print("❌ Переменная окружения TELEGRAM_BOT_TOKEN не установлена!")
-        print("Для локальной разработки создайте файл .env с настройками:")
-        print("TELEGRAM_BOT_TOKEN=your_bot_token_here")
-        print("ADMIN_USER_IDS=your_telegram_user_id")
-        print("\nДля Render установите переменные окружения в Dashboard:")
-        print("https://dashboard.render.com")
-        sys.exit(1)
-    else:
-        print("ℹ️  Используются переменные окружения (production mode)")
+if env_file.exists():
+    print("ℹ️  Локальная разработка (используется .env файл)")
+else:
+    print("ℹ️  Production mode (переменные окружения из Docker/Render)")
 
 # Импортируем и запускаем бота
 if __name__ == "__main__":
