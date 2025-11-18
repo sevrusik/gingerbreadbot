@@ -30,6 +30,12 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    environment:
+      # Переменные из .env, но можно переопределить здесь
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      ADMIN_USER_IDS: ${ADMIN_USER_IDS}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://gingerbread_user:changeme123@postgres:5432/gingerbread_bot}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
     volumes:
       - ./logs:/app/logs
       - ./media:/app/media
