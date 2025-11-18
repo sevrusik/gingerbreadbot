@@ -1,16 +1,17 @@
 import os
 from typing import List
-from pydantic_settings import BaseSettings
+from pathlib import Path
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     # Telegram Bot
     telegram_bot_token: str
     admin_user_ids: str  # Comma-separated list of admin IDs
-    
+
     # Database
     database_url: str = "sqlite:///./database/orders.db"
-    
+
     # App
     debug: bool = False
     log_level: str = "INFO"
@@ -18,14 +19,14 @@ class Settings(BaseSettings):
     webhook_path: str = "/webhook"
     webapp_host: str = "0.0.0.0"
     webapp_port: int = 8080
-    
+
     # Business
     master_name: str = "Любовь"
     business_phone: str = ""
     pickup_address: str = ""
     pickup_coordinates: str = ""
     working_hours: str = "10:00-12:00, 18:00-20:00"
-    
+
     # Pricing
     base_price_eur: float = 2.0
     coloring_price_eur: float = 12.0  # Набор из 3 пряников с красками
@@ -43,9 +44,11 @@ class Settings(BaseSettings):
     google_calendar_enabled: bool = False
     google_calendar_id: str = "primary"
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore"
+    )
 
     @property
     def admin_ids_list(self) -> List[int]:
