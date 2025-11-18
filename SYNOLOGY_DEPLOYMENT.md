@@ -109,8 +109,8 @@ sudo docker-compose exec bot env | grep TELEGRAM
 
 6. **Переменные окружения** (важно!):
    ```
-   TELEGRAM_BOT_TOKEN=8313090422:AAFQIjNFVRHRIgnY4JRTN3CUXgA5r8mSvlI
-   ADMIN_USER_IDS=ваш_telegram_user_id
+   TELEGRAM_BOT_TOKEN=your_bot_token_here
+   ADMIN_USER_IDS=your_telegram_user_id
    DATABASE_URL=postgresql+asyncpg://gingerbread_user:changeme123@gingerbread-db:5432/gingerbread_bot
    LOG_LEVEL=INFO
    MASTER_NAME=Любовь
