@@ -18,7 +18,7 @@ if not os.getenv("TELEGRAM_BOT_TOKEN"):
     print("Для локальной разработки создайте файл .env с настройками:")
     print("TELEGRAM_BOT_TOKEN=your_bot_token_here")
     print("ADMIN_USER_IDS=your_telegram_user_id")
-    print("\nДля Docker/Render переменные передаются через env_file или Dashboard")
+    print("\nДля Docker переменные передаются через env_file в docker-compose.yml")
     sys.exit(1)
 
 # Определяем режим работы
@@ -26,7 +26,7 @@ env_file = ROOT_DIR / ".env"
 if env_file.exists():
     print("ℹ️  Локальная разработка (используется .env файл)")
 else:
-    print("ℹ️  Production mode (переменные окружения из Docker/Render)")
+    print("ℹ️  Production mode (переменные окружения из Docker)")
 
 # Импортируем и запускаем бота
 if __name__ == "__main__":

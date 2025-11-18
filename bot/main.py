@@ -126,7 +126,7 @@ def register_handlers():
 
 
 async def health_check(request):
-    """Health check endpoint для Render"""
+    """Health check endpoint для мониторинга"""
     return web.Response(text="OK")
 
 
