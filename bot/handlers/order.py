@@ -546,6 +546,10 @@ async def show_order_confirmation(message: Message, state: FSMContext):
 
 💰 **Итого: {total_price:.2f} EUR**"""
     else:
+        # Экранируем пользовательский ввод для обычных заказов
+        safe_occasion = escape_markdown(occasion)
+        safe_phone = escape_markdown(phone)
+
         confirmation_text = get_text(
             "order_confirmation",
             lang,
@@ -553,8 +557,8 @@ async def show_order_confirmation(message: Message, state: FSMContext):
             theme=theme_line,
             quantity=quantity,
             date=date_formatted,
-            occasion=occasion,
-            phone=phone,
+            occasion=safe_occasion,
+            phone=safe_phone,
             total=f"{total_price:.2f}"
         )
 
