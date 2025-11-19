@@ -25,9 +25,9 @@ services:
     build: .
     container_name: gingerbread-bot
     restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
+    # depends_on:
+    #   postgres:
+    #     condition: service_healthy
     env_file:
       - .env
     environment:
@@ -39,6 +39,7 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./media:/app/media
+      - ./database:/app/database
     networks:
       - gingerbread-network
 
