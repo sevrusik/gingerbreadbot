@@ -7,6 +7,7 @@ from config.settings import settings
 from bot.keyboards.main_menu import admin_menu
 from bot.utils.order_cache import order_cache
 from bot.utils.context import get_user_lang
+from bot.utils.validators import escape_markdown
 from database.crud import (
     get_active_orders, get_orders_by_date, get_daily_stats,
     update_order_status, get_order_by_number
@@ -97,13 +98,15 @@ async def show_active_orders(callback: CallbackQuery, **kwargs):
         text += f"{status_emoji} **#{order.order_number}**\n"
         text += f"📦 {order.quantity} × {order.product_type}\n"
 
-        # Добавляем состав если есть (для новогодних)
+        # Добавляем состав если есть (для новогодних) - экранируем для Markdown
         if order.notes:
-            text += f"📋 {order.notes}\n"
+            safe_notes = escape_markdown(order.notes)
+            text += f"📋 {safe_notes}\n"
 
-        # Добавляем повод если есть
+        # Добавляем повод если есть - экранируем для Markdown
         if order.occasion:
-            text += f"💬 {order.occasion}\n"
+            safe_occasion = escape_markdown(order.occasion)
+            text += f"💬 {safe_occasion}\n"
 
         text += f"📅 {order.delivery_date.strftime('%d.%m.%Y')}\n"
         text += f"💰 {order.total_price}€\n"
@@ -366,9 +369,9 @@ async def cancel_order_confirm(callback: CallbackQuery):
         await callback.answer("Заказ не найден", show_alert=True)
         return
 
-    # Показываем подтверждение
-    notes_line = f"\n📋 {order.notes}" if order.notes else ""
-    occasion_line = f"\n💬 {order.occasion}" if order.occasion else ""
+    # Показываем подтверждение - экранируем пользовательский ввод
+    notes_line = f"\n📋 {escape_markdown(order.notes)}" if order.notes else ""
+    occasion_line = f"\n💬 {escape_markdown(order.occasion)}" if order.occasion else ""
 
     text = f"""❓ **Отменить заказ #{order.order_number}?**
 
