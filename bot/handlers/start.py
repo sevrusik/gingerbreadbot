@@ -8,6 +8,7 @@ from pathlib import Path
 from bot.keyboards.main_menu import main_menu, contacts_keyboard, gingerbread_types
 from bot.utils.texts import BotTexts
 from bot.utils.translations import get_text
+from bot.utils.validators import escape_markdown
 from bot.utils.welcome_builder import build_welcome_message
 from bot.utils.order_cache import order_cache
 from bot.utils.context import get_user_lang
@@ -287,10 +288,11 @@ async def view_order_details(callback: CallbackQuery, **kwargs):
     }
     status_text = status_map.get(order.status, order.status)
 
-    # Формируем тему если есть
+    # Формируем тему если есть (экранируем для Markdown)
     theme_line = ""
     if order.theme_description:
-        theme_line = f"🎨 {get_text('theme_label', lang)}: {order.theme_description}\n"
+        safe_theme = escape_markdown(order.theme_description)
+        theme_line = f"🎨 {get_text('theme_label', lang)}: {safe_theme}\n"
 
     details_text = get_text(
         "order_details",

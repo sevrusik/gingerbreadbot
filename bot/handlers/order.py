@@ -9,7 +9,7 @@ from bot.states.order_states import OrderStates
 from bot.keyboards.main_menu import gingerbread_types, popular_themes, confirmation_keyboard, phone_keyboard, main_menu
 from bot.utils.texts import BotTexts
 from bot.utils.translations import get_text
-from bot.utils.validators import validate_phone, validate_date, parse_date
+from bot.utils.validators import validate_phone, validate_date, parse_date, escape_markdown
 from bot.utils.media_helper import get_all_example_images, create_media_group_from_types
 from bot.utils.photo_cache import get_cached_photo, cache_photo
 from bot.utils.order_cache import order_cache
@@ -512,10 +512,11 @@ async def show_order_confirmation(message: Message, state: FSMContext):
     total_price = data.get("total_price", 0.0)
     theme = data.get("theme", "")
 
-    # Если есть тема, формируем строку темы
+    # Если есть тема, формируем строку темы (экранируем для Markdown)
     theme_line = ""
     if theme:
-        theme_line = f"\n🎨 {get_text('theme_label', lang)}: {theme}\n"
+        safe_theme = escape_markdown(theme)
+        theme_line = f"\n🎨 {get_text('theme_label', lang)}: {safe_theme}\n"
 
     # Для типов с подтипами показываем специальное подтверждение
     subtype_name = data.get("subtype_name")
@@ -527,16 +528,6 @@ async def show_order_confirmation(message: Message, state: FSMContext):
         emoji = emoji_map.get(product_type, "📦")
 
         # Экранируем пользовательский ввод для Markdown
-        def escape_markdown(text):
-            """Экранирует специальные символы Markdown"""
-            if not text:
-                return text
-            # Экранируем только основные символы, которые ломают форматирование
-            special_chars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
-            for char in special_chars:
-                text = text.replace(char, '\\' + char)
-            return text
-
         safe_comment = escape_markdown(comment)
         safe_occasion = escape_markdown(occasion)
         safe_phone = escape_markdown(phone)

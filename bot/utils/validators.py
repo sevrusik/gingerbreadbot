@@ -4,6 +4,25 @@ from typing import Optional
 import phonenumbers
 
 
+def escape_markdown(text: str) -> str:
+    """
+    Экранирует специальные символы Markdown для безопасного использования в сообщениях.
+
+    Args:
+        text: текст для экранирования
+
+    Returns:
+        экранированный текст
+    """
+    if not text:
+        return text
+    # Экранируем специальные символы Markdown
+    special_chars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
+    for char in special_chars:
+        text = text.replace(char, '\\' + char)
+    return text
+
+
 def validate_phone(phone: str) -> bool:
     """
     Валидация номера телефона
