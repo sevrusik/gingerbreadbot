@@ -589,14 +589,15 @@ async def confirm_order(callback: CallbackQuery, state: FSMContext):
     # Получаем клиента
     customer = await get_customer_by_telegram_id(callback.from_user.id)
     
-    # Для типов с подтипами сохраняем подтип и комментарий в theme_description
+    # Для типов с подтипами сохраняем подтип в theme_description, а комментарий в notes
     product_type = data["type"]
     subtype_name = data.get("subtype_name")
     if subtype_name:
-        comment = data.get("comment", "")
-        theme_desc = f"{subtype_name}" + (f" | {comment}" if comment else "")
+        theme_desc = subtype_name
+        notes = data.get("comment", "")
     else:
         theme_desc = data.get("theme", "")
+        notes = ""
 
     # Создаем заказ
     order = await create_order(
@@ -608,6 +609,7 @@ async def confirm_order(callback: CallbackQuery, state: FSMContext):
         total_price=data["total_price"],
         delivery_date=data["delivery_date"],
         occasion=data["occasion"],
+        notes=notes,
         phone=data["phone"],
         telegram_message_id=callback.message.message_id
     )

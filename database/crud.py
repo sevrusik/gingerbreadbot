@@ -132,6 +132,7 @@ async def create_order(
     phone: str,
     theme_description: str = "",
     occasion: str = "",
+    notes: str = "",
     telegram_message_id: int = None
 ) -> Order:
     """Создание нового заказа"""
@@ -146,6 +147,7 @@ async def create_order(
             total_price=total_price,
             delivery_date=delivery_date,
             occasion=occasion,
+            notes=notes,
             phone=phone,
             telegram_message_id=telegram_message_id,
             status=OrderStatus.NEW.value
