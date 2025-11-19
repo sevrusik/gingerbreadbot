@@ -34,7 +34,7 @@ services:
       # Переменные из .env, но можно переопределить здесь
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       ADMIN_USER_IDS: ${ADMIN_USER_IDS}
-      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://gingerbread_user:changeme123@postgres:5432/gingerbread_bot}
+      DATABASE_URL: ${DATABASE_URL}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     volumes:
       - ./logs:/app/logs
