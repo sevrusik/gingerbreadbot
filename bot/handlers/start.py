@@ -294,6 +294,18 @@ async def view_order_details(callback: CallbackQuery, **kwargs):
         safe_theme = escape_markdown(order.theme_description)
         theme_line = f"🎨 {get_text('theme_label', lang)}: {safe_theme}\n"
 
+    # Формируем комментарии/заметки если есть
+    notes_line = ""
+    if order.notes:
+        safe_notes = escape_markdown(order.notes)
+        notes_line = f"📋 Состав: {safe_notes}\n"
+
+    # Формируем повод если есть
+    occasion_text = ""
+    if order.occasion:
+        safe_occasion = escape_markdown(order.occasion)
+        occasion_text = f"💬 Повод: {safe_occasion}\n"
+
     details_text = get_text(
         "order_details",
         lang,
@@ -301,6 +313,8 @@ async def view_order_details(callback: CallbackQuery, **kwargs):
         status=status_text,
         type=type_name,
         theme=theme_line,
+        notes=notes_line,
+        occasion_text=occasion_text,
         quantity=order.quantity,
         date=order.delivery_date.strftime("%d.%m.%Y"),
         occasion=order.occasion or get_text("no_occasion", lang),
