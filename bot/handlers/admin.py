@@ -115,7 +115,11 @@ async def show_active_orders(callback: CallbackQuery, **kwargs):
         # Добавляем кнопки для каждого заказа
         buttons.append([
             InlineKeyboardButton(
-                text=f"❌ Отменить #{order.order_number}",
+                text=f"📋 Детали #{order.order_number}",
+                callback_data=f"admin_view_order_{order.order_number}"
+            ),
+            InlineKeyboardButton(
+                text=f"❌ Отменить",
                 callback_data=f"cancel_order_{order.order_number}"
             )
         ])
@@ -131,6 +135,99 @@ async def show_active_orders(callback: CallbackQuery, **kwargs):
     await callback.message.edit_text(
         text,
         reply_markup=keyboard,
+        parse_mode="Markdown"
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("admin_view_order_"))
+async def admin_view_order_details(callback: CallbackQuery, **kwargs):
+    """Просмотр деталей заказа админом"""
+    if not is_admin(callback.from_user.id):
+        await callback.answer("Нет доступа", show_alert=True)
+        return
+
+    order_number = callback.data.replace("admin_view_order_", "")
+    order = await get_order_by_number(order_number)
+
+    if not order:
+        await callback.answer("Заказ не найден", show_alert=True)
+        return
+
+    lang = get_user_lang(kwargs)
+
+    # Импортируем необходимые функции
+    from config.settings import GINGERBREAD_TYPES
+    from bot.utils.translations import get_text
+
+    # Формируем детали заказа (используем ту же логику что и для пользователя)
+    gingerbread_type = GINGERBREAD_TYPES.get(order.product_type, {})
+    type_name = get_text(f"type_{order.product_type}", lang)
+
+    # Статус заказа с эмодзи
+    status_emoji_map = {
+        "new": "🟡",
+        "confirmed": "✅",
+        "in_progress": "⚙️",
+        "ready": "🎁",
+        "completed": "✅",
+        "cancelled": "❌"
+    }
+    status_map = {
+        "new": get_text("status_new", lang),
+        "confirmed": get_text("status_confirmed", lang),
+        "in_progress": get_text("status_in_progress", lang),
+        "ready": get_text("status_ready", lang),
+        "completed": get_text("status_completed", lang),
+        "cancelled": get_text("status_cancelled", lang),
+    }
+    status_emoji = status_emoji_map.get(order.status, "❓")
+    status_text = status_map.get(order.status, order.status)
+
+    # Формируем тему если есть (экранируем для Markdown)
+    theme_line = ""
+    if order.theme_description:
+        safe_theme = escape_markdown(order.theme_description)
+        theme_line = f"🎨 {get_text('theme_label', lang)}: {safe_theme}\n"
+
+    # Формируем комментарии/заметки если есть
+    notes_line = ""
+    if order.notes:
+        safe_notes = escape_markdown(order.notes)
+        notes_line = f"📋 Состав: {safe_notes}\n"
+
+    # Формируем повод если есть
+    occasion_text = ""
+    if order.occasion:
+        safe_occasion = escape_markdown(order.occasion)
+        occasion_text = f"💬 Повод: {safe_occasion}\n"
+
+    details_text = get_text(
+        "order_details",
+        lang,
+        order_number=order.order_number,
+        status=f"{status_emoji} {status_text}",
+        type=type_name,
+        theme=theme_line,
+        notes=notes_line,
+        occasion_text=occasion_text,
+        quantity=order.quantity,
+        date=order.delivery_date.strftime("%d.%m.%Y"),
+        occasion=order.occasion or get_text("no_occasion", lang),
+        phone=order.phone,
+        total=f"{order.total_price:.2f}",
+        created=order.created_at.strftime("%d.%m.%Y %H:%M")
+    )
+
+    # Кнопки для управления заказом
+    admin_buttons = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="❌ Отменить заказ", callback_data=f"cancel_order_{order_number}")],
+        [InlineKeyboardButton(text="◀️ Назад к списку", callback_data="admin_orders")]
+    ])
+
+    await callback.message.edit_text(
+        details_text,
+        reply_markup=admin_buttons,
         parse_mode="Markdown"
     )
     await callback.answer()
