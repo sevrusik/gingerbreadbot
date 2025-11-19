@@ -18,7 +18,7 @@ class BotTexts:
 🍪 **Классические расписные** - {classic_price}€/шт
 Готовые пряники с красивой глазурью
 
-🎨 **Пряники-раскраски** - {coloring_price}€/шт  
+🎨 **Пряники-раскраски** - от {coloring_price}€/набор
 С красками и кисточкой в комплекте
 
 🔢 **Цифры** - {numbers_price}€/шт
@@ -27,7 +27,7 @@ class BotTexts:
 ✨ **Тематические** - от {themed_price}€/шт
 По индивидуальному дизайну""".format(
         classic_price=GINGERBREAD_TYPES["classic"]["price"],
-        coloring_price=GINGERBREAD_TYPES["coloring"]["price"], 
+        coloring_price=settings.coloring_price_eur,  # Используем минимальную цену из настроек
         numbers_price=GINGERBREAD_TYPES["numbers"]["price"],
         themed_price=GINGERBREAD_TYPES["themed"]["price"]
     )
