@@ -526,17 +526,32 @@ async def show_order_confirmation(message: Message, state: FSMContext):
         emoji_map = {"newyear": "🎄", "coloring": "🎨"}
         emoji = emoji_map.get(product_type, "📦")
 
+        # Экранируем пользовательский ввод для Markdown
+        def escape_markdown(text):
+            """Экранирует специальные символы Markdown"""
+            if not text:
+                return text
+            # Экранируем только основные символы, которые ломают форматирование
+            special_chars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
+            for char in special_chars:
+                text = text.replace(char, '\\' + char)
+            return text
+
+        safe_comment = escape_markdown(comment)
+        safe_occasion = escape_markdown(occasion)
+        safe_phone = escape_markdown(phone)
+
         confirmation_text = f"""{emoji} **{type_name}**
 📋 Тип: {subtype_name} ({price_per_item} €)
 📦 Кол-во: {quantity}"""
 
         if comment:
-            confirmation_text += f"\n📋 Комментарий: {comment}"
+            confirmation_text += f"\n📋 Комментарий: {safe_comment}"
 
         confirmation_text += f"""
 📅 Дата получения: {date_formatted}
-🎉 Повод: {occasion}
-📱 Телефон: {phone}
+🎉 Повод: {safe_occasion}
+📱 Телефон: {safe_phone}
 
 💰 **Итого: {total_price:.2f} EUR**"""
     else:
