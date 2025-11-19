@@ -31,10 +31,13 @@ async def choose_type(callback: CallbackQuery, state: FSMContext, **kwargs):
     lang = get_user_lang(kwargs)
     type_name = get_text(f"type_{type_key}", lang)
 
+    # Для типов с подтипами цена будет установлена позже при выборе подтипа
+    initial_price = type_data.get("price", 0.0)
+
     await state.update_data(
         type=type_key,
         type_name=type_name,
-        price_per_item=type_data["price"],
+        price_per_item=initial_price,
         is_urgent=type_data.get("is_urgent", False),
         lang=lang
     )
@@ -46,14 +49,25 @@ async def choose_type(callback: CallbackQuery, state: FSMContext, **kwargs):
 
     # Получаем описание на нужном языке
     description = get_text(f"type_{type_key}_desc", lang)
-    price = type_data.get("price", 2.0)
 
     # Текст для метки цены на нужном языке
     price_label = {"ru": "Цена", "en": "Price", "uk": "Ціна"}
     price_from = get_text("price_from", lang)
 
-    # Текст для карточки
-    card_text = f"🍪 **{type_name}**\n\n{description}\n\n💰 {price_label.get(lang, 'Цена')}: {price_from} {price}€/шт"
+    # Формируем текст карточки
+    if type_data.get("has_subtypes"):
+        # Для типов с подтипами показываем диапазон цен
+        prices = [subtype["price"] for subtype in type_data["subtypes"].values()]
+        min_price = min(prices)
+        max_price = max(prices)
+        if min_price == max_price:
+            price_text = f"{price_from} {min_price}€"
+        else:
+            price_text = f"{price_from} {min_price}-{max_price}€"
+        card_text = f"🍪 **{type_name}**\n\n{description}\n\n💰 {price_label.get(lang, 'Цена')}: {price_text}"
+    else:
+        # Для обычных типов показываем цену за штуку
+        card_text = f"🍪 **{type_name}**\n\n{description}\n\n💰 {price_label.get(lang, 'Цена')}: {price_from} {initial_price}€/шт"
 
     # Кнопки для карточки товара
     order_btn_text = get_text("btn_order_this", lang)
