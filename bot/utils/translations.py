@@ -114,6 +114,36 @@ TRANSLATIONS = {
         "en": "Edible cake topper made of gingerbread — festive, eye-catching, and delicious.",
         "uk": "Пряниковий топер у торт — ефектно, смачно й по-справжньому святково."
     },
+    "type_newyear": {
+        "ru": "Новогодние пряники",
+        "en": "New Year cookies",
+        "uk": "Новорічні пряники"
+    },
+    "type_newyear_desc": {
+        "ru": "Праздничные новогодние пряники — ёлочки, человечки, мишки и домики. Создадут волшебную атмосферу праздника!",
+        "en": "Festive New Year cookies — trees, gingerbread men, bears, and houses. Create the magic of the holidays!",
+        "uk": "Святкові новорічні пряники — ялинки, чоловічки, ведмедики та будиночки. Створять чарівну атмосферу свята!"
+    },
+    "choose_newyear_subtype": {
+        "ru": "🎄 **Выберите тип новогодних пряников:**\n\nУ нас есть два варианта на выбор.",
+        "en": "🎄 **Choose New Year cookie type:**\n\nWe have two options to choose from.",
+        "uk": "🎄 **Оберіть тип новорічних пряників:**\n\nУ нас є два варіанти на вибір."
+    },
+    "newyear_subtype_selected": {
+        "ru": "Выбран тип: **{subtype}** ({price} €) ✨",
+        "en": "Type selected: **{subtype}** ({price} €) ✨",
+        "uk": "Обрано тип: **{subtype}** ({price} €) ✨"
+    },
+    "enter_quantity_newyear": {
+        "ru": "📦 **Сколько пряников вам нужно?**\n\nУкажите общее количество (от 1 до 100 штук)",
+        "en": "📦 **How many cookies do you need?**\n\nEnter total quantity (from 1 to 100 pieces)",
+        "uk": "📦 **Скільки пряників вам потрібно?**\n\nВкажіть загальну кількість (від 1 до 100 штук)"
+    },
+    "enter_newyear_comment": {
+        "ru": "💬 **Укажите состав заказа**\n\nОпишите, какие пряники и в каком количестве вам нужны.\n\n**Примеры:**\n• Елка — 2 шт, Человечек — 2 шт\n• Домик (красный) — 4 шт, Мишка — 2 шт\n• Домик (коричневый) — 3 шт",
+        "en": "💬 **Specify order composition**\n\nDescribe which cookies and how many you need.\n\n**Examples:**\n• Tree — 2 pcs, Gingerbread man — 2 pcs\n• House (red) — 4 pcs, Bear — 2 pcs\n• House (brown) — 3 pcs",
+        "uk": "💬 **Вкажіть склад замовлення**\n\nОпишіть, які пряники і в якій кількості вам потрібні.\n\n**Приклади:**\n• Ялинка — 2 шт, Чоловічок — 2 шт\n• Будиночок (червоний) — 4 шт, Ведмедик — 2 шт\n• Будиночок (коричневий) — 3 шт"
+    },
 
     # Тема
     "choose_theme": {

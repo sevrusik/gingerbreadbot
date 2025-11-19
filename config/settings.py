@@ -116,6 +116,30 @@ GINGERBREAD_TYPES = {
         "is_urgent": False,
         "min_quantity": settings.min_quantity_topper,
         "example_image": "media/examples/topper.png"
+    },
+    "newyear": {
+        "name": "Новогодние пряники",
+        "description": "Праздничные новогодние пряники",
+        "emoji": "🎄",
+        "is_urgent": False,
+        "has_subtypes": True,
+        "requires_subtype": True,
+        "requires_comment": True,
+        "example_image": "media/examples/newyear.jpg",
+        "subtypes": {
+            "tree_gingerman": {
+                "name": "Елка / Пряничный человечек",
+                "price": 4.0,
+                "emoji": "🎄",
+                "items": ["Елка", "Пряничный человечек"]
+            },
+            "bear_house": {
+                "name": "Мишка / Домик",
+                "price": 4.5,
+                "emoji": "🏠",
+                "items": ["Мишка", "Домик"]
+            }
+        }
     }
 }
 

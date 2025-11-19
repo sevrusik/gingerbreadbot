@@ -113,6 +113,30 @@ async def continue_order_after_preview(callback: CallbackQuery, state: FSMContex
     # Удаляем фото-карточку
     await callback.message.delete()
 
+    # Для новогодних пряников - показываем выбор подтипа
+    if type_key == "newyear":
+        await state.set_state(OrderStates.choosing_subtype)
+
+        newyear_subtypes_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(
+                text="🎄 Елка / Пряничный человечек (4.0 €)",
+                callback_data="newyear_subtype_tree_gingerman"
+            )],
+            [InlineKeyboardButton(
+                text="🏠 Мишка / Домик (4.5 €)",
+                callback_data="newyear_subtype_bear_house"
+            )],
+            [InlineKeyboardButton(text=get_text("btn_back", lang), callback_data="back_to_types")]
+        ])
+
+        await callback.message.answer(
+            get_text("choose_newyear_subtype", lang),
+            reply_markup=newyear_subtypes_keyboard,
+            parse_mode="Markdown"
+        )
+        await callback.answer()
+        return
+
     # Переходим к количеству
     await state.set_state(OrderStates.entering_quantity)
 
@@ -136,6 +160,33 @@ async def continue_order_after_preview(callback: CallbackQuery, state: FSMContex
         parse_mode="Markdown"
     )
 
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("newyear_subtype_"))
+async def choose_newyear_subtype(callback: CallbackQuery, state: FSMContext):
+    """Выбор подтипа новогодних пряников"""
+    subtype_key = callback.data.replace("newyear_subtype_", "")
+    data = await state.get_data()
+    lang = data.get("lang", "ru")
+
+    newyear_data = GINGERBREAD_TYPES["newyear"]
+    subtype_data = newyear_data["subtypes"][subtype_key]
+
+    await state.update_data(
+        newyear_subtype=subtype_key,
+        newyear_subtype_name=subtype_data["name"],
+        price_per_item=subtype_data["price"]
+    )
+
+    await state.set_state(OrderStates.entering_quantity)
+    await callback.message.edit_text(
+        get_text("newyear_subtype_selected", lang,
+                subtype=subtype_data["name"],
+                price=subtype_data["price"]) + "\n\n" +
+        get_text("enter_quantity_newyear", lang),
+        parse_mode="Markdown"
+    )
     await callback.answer()
 
 
@@ -246,6 +297,16 @@ async def process_quantity(message: Message, state: FSMContext):
             )
             return
         actual_cookies = quantity
+    elif product_type == "newyear":
+        # Для новогодних пряников минимум 1 шт
+        min_qty = 1
+        max_qty = 100
+        if quantity < min_qty or quantity > max_qty:
+            await message.answer(
+                get_text("invalid_quantity_range", lang, min=min_qty, max=max_qty)
+            )
+            return
+        actual_cookies = quantity
     else:
         # Для остальных типов минимум 10 шт
         min_qty = settings.min_quantity
@@ -336,8 +397,34 @@ async def process_occasion(message: Message, state: FSMContext):
     occasion = message.text.strip()
     data = await state.get_data()
     lang = data.get("lang", "ru")
+    product_type = data.get("type")
 
     await state.update_data(occasion=occasion)
+
+    # Для новогодних пряников запрашиваем комментарий
+    if product_type == "newyear":
+        await state.set_state(OrderStates.entering_comment)
+        await message.answer(
+            get_text("enter_newyear_comment", lang),
+            parse_mode="Markdown"
+        )
+    else:
+        await state.set_state(OrderStates.entering_phone)
+        await message.answer(
+            get_text("enter_phone", lang),
+            reply_markup=phone_keyboard(lang),
+            parse_mode="Markdown"
+        )
+
+
+@router.message(OrderStates.entering_comment)
+async def process_comment(message: Message, state: FSMContext):
+    """Обработка комментария для новогодних пряников"""
+    comment = message.text.strip()
+    data = await state.get_data()
+    lang = data.get("lang", "ru")
+
+    await state.update_data(comment=comment)
 
     await state.set_state(OrderStates.entering_phone)
     await message.answer(
@@ -377,6 +464,7 @@ async def show_order_confirmation(message: Message, state: FSMContext):
     """Показать подтверждение заказа"""
     data = await state.get_data()
     lang = data.get("lang", "ru")
+    product_type = data.get("type")
 
     # Формируем текст подтверждения
     type_name = data.get("type_name", "")
@@ -392,17 +480,33 @@ async def show_order_confirmation(message: Message, state: FSMContext):
     if theme:
         theme_line = f"\n🎨 {get_text('theme_label', lang)}: {theme}\n"
 
-    confirmation_text = get_text(
-        "order_confirmation",
-        lang,
-        type=type_name,
-        theme=theme_line,
-        quantity=quantity,
-        date=date_formatted,
-        occasion=occasion,
-        phone=phone,
-        total=f"{total_price:.2f}"
-    )
+    # Для новогодних пряников добавляем подтип и комментарий
+    if product_type == "newyear":
+        newyear_subtype_name = data.get("newyear_subtype_name", "")
+        comment = data.get("comment", "")
+        price_per_item = data.get("price_per_item", 0.0)
+
+        confirmation_text = f"""🎄 **{type_name}**
+📋 Тип: {newyear_subtype_name} ({price_per_item} €)
+📦 Кол-во: {quantity}
+📋 Комментарий: {comment}
+📅 Дата получения: {date_formatted}
+🎉 Повод: {occasion}
+📱 Телефон: {phone}
+
+💰 **Итого: {total_price:.2f} EUR**"""
+    else:
+        confirmation_text = get_text(
+            "order_confirmation",
+            lang,
+            type=type_name,
+            theme=theme_line,
+            quantity=quantity,
+            date=date_formatted,
+            occasion=occasion,
+            phone=phone,
+            total=f"{total_price:.2f}"
+        )
 
     await state.set_state(OrderStates.confirming_order)
     await message.answer(
@@ -431,11 +535,20 @@ async def confirm_order(callback: CallbackQuery, state: FSMContext):
     # Получаем клиента
     customer = await get_customer_by_telegram_id(callback.from_user.id)
     
+    # Для новогодних пряников сохраняем подтип и комментарий в theme_description
+    product_type = data["type"]
+    if product_type == "newyear":
+        newyear_subtype_name = data.get("newyear_subtype_name", "")
+        comment = data.get("comment", "")
+        theme_desc = f"{newyear_subtype_name} | {comment}"
+    else:
+        theme_desc = data.get("theme", "")
+
     # Создаем заказ
     order = await create_order(
         customer_id=customer.id,
-        product_type=data["type"],
-        theme_description=data.get("theme", ""),
+        product_type=product_type,
+        theme_description=theme_desc,
         quantity=data["quantity"],
         price_per_item=data["price_per_item"],
         total_price=data["total_price"],
