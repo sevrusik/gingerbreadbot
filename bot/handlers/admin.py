@@ -96,6 +96,15 @@ async def show_active_orders(callback: CallbackQuery, **kwargs):
 
         text += f"{status_emoji} **#{order.order_number}**\n"
         text += f"📦 {order.quantity} × {order.product_type}\n"
+
+        # Добавляем состав если есть (для новогодних)
+        if order.notes:
+            text += f"📋 {order.notes}\n"
+
+        # Добавляем повод если есть
+        if order.occasion:
+            text += f"💬 {order.occasion}\n"
+
         text += f"📅 {order.delivery_date.strftime('%d.%m.%Y')}\n"
         text += f"💰 {order.total_price}€\n"
         text += f"📞 {order.phone}\n\n"
@@ -358,9 +367,12 @@ async def cancel_order_confirm(callback: CallbackQuery):
         return
 
     # Показываем подтверждение
+    notes_line = f"\n📋 {order.notes}" if order.notes else ""
+    occasion_line = f"\n💬 {order.occasion}" if order.occasion else ""
+
     text = f"""❓ **Отменить заказ #{order.order_number}?**
 
-📦 {order.quantity} × {order.product_type}
+📦 {order.quantity} × {order.product_type}{notes_line}{occasion_line}
 📅 {order.delivery_date.strftime('%d.%m.%Y')}
 💰 {order.total_price}€
 📞 {order.phone}
