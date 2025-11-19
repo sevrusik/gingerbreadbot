@@ -76,13 +76,36 @@ GINGERBREAD_TYPES = {
     },
     "coloring": {
         "name": "Пряники-раскраски",
-        "description": "Набор из 3 пряников с палитрой красок и кисточкой",
-        "price": settings.coloring_price_eur,
+        "description": "Набор пряников с палитрой красок и кисточкой",
         "emoji": "🎨",
         "is_urgent": False,
         "is_set": True,  # Это набор, а не поштучно
-        "set_size": settings.coloring_set_size,
-        "example_image": "media/examples/coloring.jpg"
+        "has_subtypes": True,
+        "requires_subtype": True,
+        "example_image": "media/examples/coloring.jpg",
+        "subtypes": {
+            "house_santa": {
+                "name": "Домик + Санта",
+                "price": 12.0,
+                "emoji": "🏠🎅",
+                "set_size": 2,
+                "items": ["Домик", "Санта"]
+            },
+            "tree_gingerman_house": {
+                "name": "Елка + Человечек + Дом",
+                "price": 12.0,
+                "emoji": "🎄",
+                "set_size": 3,
+                "items": ["Елка", "Пряничный человечек", "Дом"]
+            },
+            "horse": {
+                "name": "Лошадка",
+                "price": 6.0,
+                "emoji": "🐴",
+                "set_size": 1,
+                "items": ["Лошадка"]
+            }
+        }
     },
     "numbers": {
         "name": "Цифры",

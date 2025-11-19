@@ -113,25 +113,30 @@ async def continue_order_after_preview(callback: CallbackQuery, state: FSMContex
     # Удаляем фото-карточку
     await callback.message.delete()
 
-    # Для новогодних пряников - показываем выбор подтипа
-    if type_key == "newyear":
+    # Для типов с подтипами - показываем выбор подтипа
+    type_data = GINGERBREAD_TYPES.get(type_key, {})
+    if type_data.get("has_subtypes"):
         await state.set_state(OrderStates.choosing_subtype)
 
-        newyear_subtypes_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(
-                text="🎄 Елка / Пряничный человечек (4.0 €)",
-                callback_data="newyear_subtype_tree_gingerman"
-            )],
-            [InlineKeyboardButton(
-                text="🏠 Мишка / Домик (4.5 €)",
-                callback_data="newyear_subtype_bear_house"
-            )],
-            [InlineKeyboardButton(text=get_text("btn_back", lang), callback_data="back_to_types")]
+        # Создаем клавиатуру с подтипами
+        subtypes_keyboard_buttons = []
+        for subtype_key, subtype_data in type_data["subtypes"].items():
+            button_text = f"{subtype_data['emoji']} {subtype_data['name']} ({subtype_data['price']} €)"
+            callback_prefix = f"{type_key}_subtype_{subtype_key}"
+            subtypes_keyboard_buttons.append([
+                InlineKeyboardButton(text=button_text, callback_data=callback_prefix)
+            ])
+
+        subtypes_keyboard_buttons.append([
+            InlineKeyboardButton(text=get_text("btn_back", lang), callback_data="back_to_types")
         ])
 
+        subtypes_keyboard = InlineKeyboardMarkup(inline_keyboard=subtypes_keyboard_buttons)
+
+        prompt_key = f"choose_{type_key}_subtype" if type_key == "newyear" else "choose_coloring_subtype"
         await callback.message.answer(
-            get_text("choose_newyear_subtype", lang),
-            reply_markup=newyear_subtypes_keyboard,
+            get_text(prompt_key, lang),
+            reply_markup=subtypes_keyboard,
             parse_mode="Markdown"
         )
         await callback.answer()
@@ -163,28 +168,45 @@ async def continue_order_after_preview(callback: CallbackQuery, state: FSMContex
     await callback.answer()
 
 
-@router.callback_query(F.data.startswith("newyear_subtype_"))
-async def choose_newyear_subtype(callback: CallbackQuery, state: FSMContext):
-    """Выбор подтипа новогодних пряников"""
-    subtype_key = callback.data.replace("newyear_subtype_", "")
+@router.callback_query(F.data.contains("_subtype_"))
+async def choose_subtype(callback: CallbackQuery, state: FSMContext):
+    """Универсальный обработчик выбора подтипа"""
+    # Парсим callback_data: "{type}_subtype_{subtype_key}"
+    parts = callback.data.split("_subtype_")
+    type_key = parts[0]
+    subtype_key = parts[1]
+
     data = await state.get_data()
     lang = data.get("lang", "ru")
 
-    newyear_data = GINGERBREAD_TYPES["newyear"]
-    subtype_data = newyear_data["subtypes"][subtype_key]
+    type_data = GINGERBREAD_TYPES[type_key]
+    subtype_data = type_data["subtypes"][subtype_key]
 
+    # Сохраняем данные подтипа
     await state.update_data(
-        newyear_subtype=subtype_key,
-        newyear_subtype_name=subtype_data["name"],
-        price_per_item=subtype_data["price"]
+        subtype=subtype_key,
+        subtype_name=subtype_data["name"],
+        price_per_item=subtype_data["price"],
+        set_size=subtype_data.get("set_size", 1)
     )
 
     await state.set_state(OrderStates.entering_quantity)
+
+    # Формируем сообщение о выборе
+    selection_msg = get_text("subtype_selected", lang,
+                            subtype=subtype_data["name"],
+                            price=subtype_data["price"])
+
+    # Выбираем текст для запроса количества
+    if type_key == "coloring":
+        quantity_prompt = get_text("enter_quantity_coloring_subtype", lang)
+    elif type_key == "newyear":
+        quantity_prompt = get_text("enter_quantity_newyear", lang)
+    else:
+        quantity_prompt = get_text("enter_quantity", lang)
+
     await callback.message.edit_text(
-        get_text("newyear_subtype_selected", lang,
-                subtype=subtype_data["name"],
-                price=subtype_data["price"]) + "\n\n" +
-        get_text("enter_quantity_newyear", lang),
+        selection_msg + "\n\n" + quantity_prompt,
         parse_mode="Markdown"
     )
     await callback.answer()
@@ -277,16 +299,17 @@ async def process_quantity(message: Message, state: FSMContext):
 
     # Определяем минимальное и максимальное количество в зависимости от типа
     if product_type == "coloring":
-        # Для раскрасок - это наборы, минимум 1 набор
+        # Для раскрасок с подтипами - используем set_size из подтипа
+        set_size = data.get("set_size", 1)
         min_qty = 1
         max_qty = 100
         if quantity < min_qty or quantity > max_qty:
             await message.answer(
-                get_text("invalid_quantity_coloring", lang, min=min_qty, max=max_qty)
+                get_text("invalid_quantity_range", lang, min=min_qty, max=max_qty)
             )
             return
         # Сохраняем количество наборов
-        actual_cookies = quantity * settings.coloring_set_size
+        actual_cookies = quantity * set_size
     elif product_type == "topper":
         # Для топеров минимум 1 шт
         min_qty = settings.min_quantity_topper
@@ -480,16 +503,23 @@ async def show_order_confirmation(message: Message, state: FSMContext):
     if theme:
         theme_line = f"\n🎨 {get_text('theme_label', lang)}: {theme}\n"
 
-    # Для новогодних пряников добавляем подтип и комментарий
-    if product_type == "newyear":
-        newyear_subtype_name = data.get("newyear_subtype_name", "")
-        comment = data.get("comment", "")
+    # Для типов с подтипами показываем специальное подтверждение
+    subtype_name = data.get("subtype_name")
+    if subtype_name:
         price_per_item = data.get("price_per_item", 0.0)
+        comment = data.get("comment", "")
 
-        confirmation_text = f"""🎄 **{type_name}**
-📋 Тип: {newyear_subtype_name} ({price_per_item} €)
-📦 Кол-во: {quantity}
-📋 Комментарий: {comment}
+        emoji_map = {"newyear": "🎄", "coloring": "🎨"}
+        emoji = emoji_map.get(product_type, "📦")
+
+        confirmation_text = f"""{emoji} **{type_name}**
+📋 Тип: {subtype_name} ({price_per_item} €)
+📦 Кол-во: {quantity}"""
+
+        if comment:
+            confirmation_text += f"\n📋 Комментарий: {comment}"
+
+        confirmation_text += f"""
 📅 Дата получения: {date_formatted}
 🎉 Повод: {occasion}
 📱 Телефон: {phone}
@@ -535,12 +565,12 @@ async def confirm_order(callback: CallbackQuery, state: FSMContext):
     # Получаем клиента
     customer = await get_customer_by_telegram_id(callback.from_user.id)
     
-    # Для новогодних пряников сохраняем подтип и комментарий в theme_description
+    # Для типов с подтипами сохраняем подтип и комментарий в theme_description
     product_type = data["type"]
-    if product_type == "newyear":
-        newyear_subtype_name = data.get("newyear_subtype_name", "")
+    subtype_name = data.get("subtype_name")
+    if subtype_name:
         comment = data.get("comment", "")
-        theme_desc = f"{newyear_subtype_name} | {comment}"
+        theme_desc = f"{subtype_name}" + (f" | {comment}" if comment else "")
     else:
         theme_desc = data.get("theme", "")
 

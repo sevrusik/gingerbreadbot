@@ -144,6 +144,21 @@ TRANSLATIONS = {
         "en": "💬 **Specify order composition**\n\nDescribe which cookies and how many you need.\n\n**Examples:**\n• Tree — 2 pcs, Gingerbread man — 2 pcs\n• House (red) — 4 pcs, Bear — 2 pcs\n• House (brown) — 3 pcs",
         "uk": "💬 **Вкажіть склад замовлення**\n\nОпишіть, які пряники і в якій кількості вам потрібні.\n\n**Приклади:**\n• Ялинка — 2 шт, Чоловічок — 2 шт\n• Будиночок (червоний) — 4 шт, Ведмедик — 2 шт\n• Будиночок (коричневий) — 3 шт"
     },
+    "choose_coloring_subtype": {
+        "ru": "🎨 **Выберите набор пряников-раскрасок:**\n\nУ нас есть три варианта на выбор.",
+        "en": "🎨 **Choose coloring cookie set:**\n\nWe have three options to choose from.",
+        "uk": "🎨 **Оберіть набір пряників-розмальовок:**\n\nУ нас є три варіанти на вибір."
+    },
+    "subtype_selected": {
+        "ru": "Выбран набор: **{subtype}** ({price} €) ✨",
+        "en": "Set selected: **{subtype}** ({price} €) ✨",
+        "uk": "Обрано набір: **{subtype}** ({price} €) ✨"
+    },
+    "enter_quantity_coloring_subtype": {
+        "ru": "📦 **Сколько наборов вам нужно?**\n\nУкажите количество наборов (от 1 до 100)",
+        "en": "📦 **How many sets do you need?**\n\nEnter number of sets (from 1 to 100)",
+        "uk": "📦 **Скільки наборів вам потрібно?**\n\nВкажіть кількість наборів (від 1 до 100)"
+    },
 
     # Тема
     "choose_theme": {
