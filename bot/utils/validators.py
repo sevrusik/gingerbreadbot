@@ -123,14 +123,32 @@ def generate_order_number() -> str:
     return now.strftime("%y%m%d-%H%M")
 
 
-def calculate_price(product_type: str, quantity: int, is_rush: bool = False) -> float:
-    """Расчет стоимости заказа"""
+def calculate_price(product_type: str, quantity: int, is_rush: bool = False, price_per_item: float = None) -> float:
+    """Расчет стоимости заказа
+
+    Args:
+        product_type: тип пряника
+        quantity: количество
+        is_rush: срочный заказ
+        price_per_item: цена за единицу (для типов с подтипами передается явно)
+    """
     from config.settings import GINGERBREAD_TYPES, settings
-    
-    base_price = GINGERBREAD_TYPES[product_type]["price"]
+
+    # Если цена передана явно (для типов с подтипами) - используем её
+    if price_per_item is not None:
+        base_price = price_per_item
+    else:
+        # Иначе берем из конфигурации
+        type_data = GINGERBREAD_TYPES[product_type]
+        if "price" in type_data:
+            base_price = type_data["price"]
+        else:
+            # Для типов с подтипами нужно передавать price_per_item
+            raise ValueError(f"Для типа {product_type} нужно передать price_per_item")
+
     total = base_price * quantity
-    
+
     if is_rush:
         total *= settings.rush_order_multiplier
-    
+
     return round(total, 2)

@@ -28,7 +28,14 @@ def gingerbread_types(lang: str = "ru") -> InlineKeyboardMarkup:
     for type_key, type_data in GINGERBREAD_TYPES.items():
         type_name = get_text(f"type_{type_key}", lang)
         price_from = get_text("price_from", lang)
-        button_text = f"{type_data['emoji']} {type_name} - {price_from} {type_data['price']}€"
+
+        # Для типов с подтипами показываем минимальную цену
+        if type_data.get("has_subtypes") and "subtypes" in type_data:
+            min_price = min(subtype["price"] for subtype in type_data["subtypes"].values())
+            button_text = f"{type_data['emoji']} {type_name} - {price_from} {min_price}€"
+        else:
+            button_text = f"{type_data['emoji']} {type_name} - {price_from} {type_data['price']}€"
+
         keyboard.inline_keyboard.append([
             InlineKeyboardButton(text=button_text, callback_data=f"type_{type_key}")
         ])
